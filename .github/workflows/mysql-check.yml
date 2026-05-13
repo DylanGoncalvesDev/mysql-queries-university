@@ -1,0 +1,59 @@
+name: Evaluación de Queries SQL
+
+on: [push, pull_request]
+
+permissions:
+  contents: write
+
+jobs:
+  check_queries:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del Repositorio
+        uses: actions/checkout@v3
+
+      - name: Instalar Dependencias
+        run: sudo apt-get install -y mysql-client python3-pip docker-compose
+
+      - name: Instalar Dependencias de Python
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Levantar Base de Datos con Docker Compose
+        run: docker compose up -d
+
+      - name: Esperar a que MySQL esté listo
+        run: |
+          echo "Esperando a MySQL..."
+          while ! mysqladmin ping -h127.0.0.1 --silent; do
+            sleep 2
+          done
+          echo "MySQL está listo."
+
+      - name: Ejecutar Evaluación de Queries
+        run: |
+          source venv/bin/activate
+          python3 -m src.scripts.check_queries
+
+      - name: Guardar Reporte como Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reporte_SQL
+          path: RESULTADOS.md
+
+      - name: Configurar Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Commit y Push del Reporte SQL
+        run: |
+          git add RESULTADOS.md
+          git commit -m "Actualizar Reporte SQL [skip ci]" || echo "No hay cambios que hacer"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
