@@ -95,7 +95,7 @@ WHERE curso_escolar.anyo_inicio = 2018 AND curso_escolar.anyo_fin = 2019;
 
 -- Resol les 6 següents consultes utilitzant les clàusules LEFT JOIN i RIGHT JOIN.
 -- 10. Retorna un llistat amb els noms de tots els professors/es i els departaments que tenen vinculats. El llistat també ha de mostrar aquells professors/es que no tenen cap departament associat. El llistat ha de retornar quatre columnes, nom del departament, primer cognom, segon cognom i nom del professor/a. El resultat estarà ordenat alfabèticament de menor a major pel nom del departament, cognoms i el nom. (departamento, apellido1, apellido2, nombre)
-ELECT 
+SELECT 
 departamento.nombre AS departamento,
 persona.apellido1,
 persona.apellido2,
@@ -114,8 +114,7 @@ persona.nombre
 FROM persona
 JOIN profesor ON profesor.id_profesor = persona.id
 LEFT JOIN departamento ON profesor.id_departamento = departamento.id
-WHERE profesor.id_departamento IS NULL;
-
+WHERE departamento.id IS NULL;
 
 -- 12. Retorna un llistat amb els departaments que no tenen professors/es associats. (nombre)
 SELECT 
@@ -204,7 +203,7 @@ HAVING total > 40;
 -- 22. Retorna un llistat que mostri el nom dels graus i la suma del nombre total de crèdits que hi ha per a cada tipus d'assignatura. El resultat ha de tenir tres columnes: nom del grau, tipus d'assignatura i la suma dels crèdits de totes les assignatures que hi ha d'aquest tipus. (grau, tipus, total_creditos)
 SELECT 
 grado.nombre AS grau,
-asignatura.tipo AS tipus,
+asignatura.tipo AS tipo,
 SUM(asignatura.creditos) AS total_creditos
 FROM grado 
 JOIN asignatura ON asignatura.id_grado = grado.id
@@ -214,7 +213,7 @@ GROUP BY grado.id, grado.nombre, asignatura.tipo;
 -- 23. Retorna un llistat que mostri quants alumnes s'han matriculat d'alguna assignatura en cadascun dels cursos escolars. El resultat haurà de mostrar dues columnes, una columna amb l'any d'inici del curs escolar i una altra amb el nombre d'alumnes matriculats. (anyo_inicio, total)
 SELECT 
 curso_escolar.anyo_inicio,
-COUNT(alumno_se_matricula_asignatura.id_alumno) AS total
+COUNT(DISTINCT alumno_se_matricula_asignatura.id_alumno) AS total
 FROM curso_escolar
 JOIN alumno_se_matricula_asignatura ON alumno_se_matricula_asignatura.id_curso_escolar = curso_escolar.id
 GROUP BY curso_escolar.anyo_inicio;
